@@ -17,7 +17,7 @@ function request.new(url, method, params)
   self.completed = false
   self.response = nil
   self.isError = nil
-  self.request = network.request(url, method, handler, params)
+  self.requestId = network.request(url, method, handler, params)
 
   return self
 end
@@ -77,6 +77,11 @@ function request:handler(event)
 
   -- call onComplete callback
   self:triggerCallbacks("onCompleteCallback", self.response)
+end
+
+function request:cancel()
+  network.cancel(self.requestId)
+  return self
 end
 
 return request

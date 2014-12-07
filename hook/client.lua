@@ -68,7 +68,7 @@ function client:request(segments, method, data)
   }
 
   if method == "GET" then
-    segments = segments .. "?" .. data
+    segments = segments .. "?" .. url.escape(data)
   else
     params["body"] = data
   end

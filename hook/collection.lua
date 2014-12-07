@@ -1,3 +1,5 @@
+local json = require('json')
+
 --
 -- hook.collection class
 --
@@ -34,10 +36,6 @@ function collection:select(...)
   self.options["select"] = arg
 end
 
-function collection:get()
-  return self.client:get(self.segments, self:buildQuery())
-end
-
 function collection:where(objects, _operation, _value, _boolean)
   if #objects == 0 then
     -- 'objects' is a dictionary
@@ -53,7 +51,7 @@ function collection:where(objects, _operation, _value, _boolean)
 
     local field = objects
     local operation = _value and _operation or "="
-    local value = _value and _operation or "="
+    local value = _value or _operation
     local boolean = _boolean or "and"
     self:addWhere(objects, operation, value, boolean)
   end
@@ -217,21 +215,21 @@ function collection:buildQuery()
   end
 
   -- apply wheres
-  if (self.wheres.length > 0) then
+  if (#self.wheres > 0) then
     query.q = self.wheres
   end
 
   -- apply ordering
-  if (self.ordering.length > 0) then
+  if (#self.ordering > 0) then
     query.s = self.ordering
   end
 
   -- apply group
-  if (self._group.length > 0) then
+  if (#self._group > 0) then
     query.g = self._group
   end
 
-  local f, shortnames = {
+  local shortnames = {
     paginate = 'p',        -- pagination (perPage)
     first = 'f',           -- first / firstOrCreate
     aggregation = 'aggr',  -- min / max / count / avg / sum
@@ -252,6 +250,25 @@ function collection:buildQuery()
   self:reset()
 
   return query
+end
+
+function collection:get()
+  return self.client:get(self.segments, self:buildQuery())
+end
+
+--
+-- syntactic sugar for request callbacks
+--
+function collection:onSuccess(callback)
+  return self:get():onSuccess(callback)
+end
+
+function collection:onError(callback)
+  return self:get():onError(callback)
+end
+
+function collection:onComplete(callback)
+  return self:get():onComplete(callback)
 end
 
 return collection

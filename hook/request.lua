@@ -11,6 +11,7 @@ function request.new(url, method, params)
   -- callbacks
   self.onSuccessCallback = nil
   self.onErrorCallback = nil
+  self.onCompleteCallback = nil
 
   -- properties
   self.completed = false
@@ -43,19 +44,38 @@ function request:onError(callback)
   return self
 end
 
+function request:onComplete(callback)
+  self.onCompleteCallback = callback
+
+  -- call it immediatelly if response is already set
+  if self.response then
+    self.onCompleteCallback(self.response)
+  end
+
+  return self
+end
+
+
 function request:handler(event)
   self.response = json.decode(event.response)
   self.isError = event.isError
 
   if self.isError then
     print("Network error: " .. event)
+    -- call onError callback
     if self.onErrorCallback then
       self.onErrorCallback(self.response)
     end
   else
+    -- call onSuccess callback
     if self.onSuccessCallback then
       self.onSuccessCallback(self.response)
     end
+  end
+
+  -- call onComplete callback
+  if self.onCompleteCallback then
+    self.onCompleteCallback(self.response)
   end
 end
 

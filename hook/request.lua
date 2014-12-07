@@ -9,9 +9,9 @@ function request.new(url, method, params)
   local handler = function(e) self:handler(e); end
 
   -- callbacks
-  self.onSuccessCallback = nil
-  self.onErrorCallback = nil
-  self.onCompleteCallback = nil
+  self.onSuccessCallback = {}
+  self.onErrorCallback = {}
+  self.onCompleteCallback = {}
 
   -- properties
   self.completed = false
@@ -23,7 +23,7 @@ function request.new(url, method, params)
 end
 
 function request:onSuccess(callback)
-  self.onSuccessCallback = callback
+  table.insert(self.onSuccessCallback, callback)
 
   -- call it immediatelly if response is already set
   if self.response and not self.isError then
@@ -34,7 +34,7 @@ function request:onSuccess(callback)
 end
 
 function request:onError(callback)
-  self.onErrorCallback = callback
+  table.insert(self.onErrorCallback, callback)
 
   -- call it immediatelly if response is already set
   if self.response and self.isError then
@@ -45,7 +45,7 @@ function request:onError(callback)
 end
 
 function request:onComplete(callback)
-  self.onCompleteCallback = callback
+  table.insert(self.onCompleteCallback, callback)
 
   -- call it immediatelly if response is already set
   if self.response then
@@ -55,6 +55,11 @@ function request:onComplete(callback)
   return self
 end
 
+function request:triggerCallbacks(t, data)
+  for callback in pairs(self[t]) do
+    callback(data)
+  end
+end
 
 function request:handler(event)
   self.response = json.decode(event.response)
@@ -62,21 +67,16 @@ function request:handler(event)
 
   if self.isError then
     print("Network error: " .. event)
+
     -- call onError callback
-    if self.onErrorCallback then
-      self.onErrorCallback(self.response)
-    end
+    self:triggerCallbacks("onErrorCallback", self.response)
   else
     -- call onSuccess callback
-    if self.onSuccessCallback then
-      self.onSuccessCallback(self.response)
-    end
+    self:triggerCallbacks("onSuccessCallback", self.response)
   end
 
   -- call onComplete callback
-  if self.onCompleteCallback then
-    self.onCompleteCallback(self.response)
-  end
+  self:triggerCallbacks("onCompleteCallback", self.response)
 end
 
 return request

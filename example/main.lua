@@ -50,6 +50,14 @@ hook:collection("scores"):
   print("Number of rows: " .. #data .. ", first._id: " .. data[1]._id .. ", last._id: " .. data[#data]._id)
 end)
 
+-- aggregation
+hook:collection("scores"):
+  sum("score"):
+  onSuccess(function(data)
+  print("Sum of all scores: " .. data)
+end)
+
+
 -- --
 -- -- Authentication examples
 -- --

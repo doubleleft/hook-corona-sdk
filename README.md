@@ -1,7 +1,7 @@
-hook-corona
+hook-corona-sdk
 ===========
 
-Corona client for [hook](https://github.com/doubleleft/hook).
+CoronaSDK client for [hook](https://github.com/doubleleft/hook).
 
 [Usage examples](example/main.lua)
 

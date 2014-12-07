@@ -26,6 +26,7 @@ function storage.get(name)
   for row in db:nrows([[SELECT value FROM config WHERE id = "]] .. name .. [["]]) do
     return row.value
   end
+  return nil
 end
 
 function storage.set(name, value)

@@ -25,13 +25,15 @@ hook:collection("scores"):create({
   print("Created successfully.")
   print("Name: " .. data.name .. ", Score: " .. data.score .. ", Created at: " .. data.created_at)
 end):onError(function(data)
-  print(data)
+  print("error on create")
 end)
 
 -- where and first
 hook:collection("scores"):where("score", "<", 10):first():onSuccess(function(data)
   print("Score < 10?")
   print(json.encode(data))
+end):onError(function()
+  print("Not found!")
 end)
 
 -- where and count
@@ -57,11 +59,14 @@ hook:collection("scores"):
   print("Sum of all scores: " .. data)
 end)
 
-
 -- --
 -- -- Authentication examples
 -- --
--- hook.auth:register({
---   email = "edreyer@doubleleft.com",
---   password = "123456"
--- })
+hook.auth:register({
+  email = "edreyer@doubleleft.com",
+  password = "123456"
+}):onSuccess(function(data)
+  print(json.encode(data))
+end):onError(function(data)
+  print("Error: " .. data.error)
+end)

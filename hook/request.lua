@@ -56,17 +56,17 @@ function request:onComplete(callback)
 end
 
 function request:triggerCallbacks(t, data)
-  for callback in pairs(self[t]) do
+  for k, callback in pairs(self[t]) do
     callback(data)
   end
 end
 
 function request:handler(event)
-  self.response = json.decode(event.response)
-  self.isError = event.isError
+  self.isError = event.isError or (event.status >= 400)
+  self.response = json.decode(event.response) or {}
 
   if self.isError then
-    print("Network error: " .. event)
+    print("hook responed with error (".. event.status .. "): " .. (self.response.error or "unexpected"))
 
     -- call onError callback
     self:triggerCallbacks("onErrorCallback", self.response)

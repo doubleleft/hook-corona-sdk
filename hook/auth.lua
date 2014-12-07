@@ -38,6 +38,8 @@ function auth:setCurrentUser(data)
     storage.remove(self.client.config.app_id .. '-' .. AUTH_TOKEN_KEY)
     storage.remove(self.client.config.app_id .. '-' .. AUTH_DATA_KEY)
   else
+    print(self.client.config.app_id .. '-' .. AUTH_DATA_KEY)
+    print(json.encode(data))
     storage.set(self.client.config.app_id .. '-' .. AUTH_DATA_KEY, json.encode(data))
 
     self.currentUser = data
@@ -87,7 +89,7 @@ function auth:forgotPassword(data)
   return self.client:post("auth/email/forgotPassword", data)
 end
 
-function auth:resetPassword = function(data)
+function auth:resetPassword(data)
   if not data.token then
     error("'token' is required to reset password.")
   end
@@ -108,14 +110,18 @@ function auth:getToken()
 end
 
 function auth:_registerToken(data)
+  print("_registerToken")
+  print(json.encode(data))
   if data.token then
     -- register authentication token on localStorage
+    print(self.client.config.app_id .. '-' .. AUTH_TOKEN_KEY)
+    print(data.token.token)
     storage.set(self.client.config.app_id .. '-' .. AUTH_TOKEN_KEY, data.token.token);
     storage.set(self.client.config.app_id .. '-' .. AUTH_TOKEN_EXPIRATION, data.token.expire_at);
 
     data["token"] = nil
 
-    // Store curent user
+    -- Store curent user
     self:setCurrentUser(data);
   end
 end

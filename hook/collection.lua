@@ -34,6 +34,7 @@ end
 
 function collection:select(...)
   self.options["select"] = arg
+  return self
 end
 
 function collection:where(objects, _operation, _value, _boolean)

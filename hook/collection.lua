@@ -175,7 +175,7 @@ function collection:increment(field, value)
   self.options.operation = {
     method = "increment",
     field = field,
-    value = value
+    value = value or 1
   }
   return self.client:put(self.segments, self:buildQuery())
 end
@@ -184,7 +184,7 @@ function collection:decrement(field, value)
   self.options.operation = {
     method = "decrement",
     field = field,
-    value = value
+    value = value or 1
   }
   return self.client:put(self.segments, self:buildQuery())
 end

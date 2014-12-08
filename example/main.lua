@@ -63,10 +63,19 @@ end)
 -- -- Authentication examples
 -- --
 hook.auth:register({
-  email = "edreyer@doubleleft.com",
+  email = "edreyer+8@doubleleft.com",
   password = "123456"
 }):onSuccess(function(data)
   print(json.encode(data))
 end):onError(function(data)
-  print("Error: " .. data.error)
+  print("auth:register error: " .. data.error)
+end)
+
+hook.auth:login({
+  email = "somebody@email.com",
+  password = "test"
+}):onSuccess(function(data)
+  print("Logged in: " .. json.encode(data))
+end):onError(function(data)
+  print("auth:login error: " .. data.error)
 end)

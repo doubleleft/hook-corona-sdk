@@ -11,9 +11,9 @@ local db = sqlite3.open(path)
 -- Handle the "applicationExit" event to close the database
 --
 local function onSystemEvent( event )
-    if ( event.type == "applicationExit" ) then
-        db:close()
-    end
+  if ( event.type == "applicationExit" ) then
+    db:close()
+  end
 end
 
 --
@@ -30,11 +30,14 @@ function storage.get(name)
 end
 
 function storage.set(name, value)
+  -- escape single quotes
+  value = string.gsub(value, "'", "''")
+
   -- make sure it exists
-  local insert = [[INSERT OR IGNORE INTO config (id, value) VALUES ("]] .. name .. [[", "]] .. value .. [[");]]
+  local insert = [[INSERT OR IGNORE INTO config (id, value) VALUES ("]] .. name .. [[", ']] .. value .. [[');]]
   db:exec(insert)
 
-  local update = [[UPDATE config SET value = "]] .. value .. [[" WHERE id="]].. name ..[[";]]
+  local update = [[UPDATE config SET value = ']] .. value .. [[' WHERE id="]].. name ..[[";]]
   return db:exec(update)
 end
 
@@ -43,7 +46,7 @@ function storage.remove(name)
 end
 
 -- Print the SQLite version
-print( "SQLite version " .. sqlite3.version() )
+print("SQLite version " .. sqlite3.version())
 
 --
 -- Setup the event listener to catch "applicationExit"

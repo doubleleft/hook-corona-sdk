@@ -7,9 +7,30 @@ local storage = require('hook.utils.storage')
 local auth = {}
 auth.__index = auth
 
-AUTH_DATA_KEY = 'hook-auth-data'
-AUTH_TOKEN_KEY = 'hook-auth-token'
-AUTH_TOKEN_EXPIRATION = 'hook-auth-token-expiration'
+local AUTH_DATA_KEY = 'hook-auth-data'
+local AUTH_TOKEN_KEY = 'hook-auth-token'
+local AUTH_TOKEN_EXPIRATION = 'hook-auth-token-expiration'
+
+local strtotime = function(str)
+  if str == "" then
+    return os.time()
+  end
+
+  -- extracted from http://forums.coronalabs.com/topic/29019-convert-string-to-date/
+  local pattern = "(%d+)%-(%d+)%-(%d+)T(%d+):(%d+):(%d+)([%+%-])(%d+)%:(%d+)"
+  local xyear, xmonth, xday, xhour, xminute, xseconds, xoffset, xoffsethour, xoffsetmin = str:match(pattern)
+  local convertedTimestamp = os.time({
+    year = xyear,
+    month = xmonth,
+    day = xday,
+    hour = xhour,
+    min = xminute,
+    sec = xseconds
+  })
+  local offset = xoffsethour * 60 + xoffsetmin
+  if xoffset == "-" then offset = offset * -1 end
+  return convertedTimestamp + offset
+end
 
 function auth.new(client)
   local self = setmetatable({}, auth)
@@ -17,9 +38,9 @@ function auth.new(client)
   self.client = client
   self.currentUser = nil
 
-  local now = os.time()
-  local tokenExpiration = tonumber(storage.get(client.config.app_id .. '-' .. AUTH_TOKEN_EXPIRATION))
+  local tokenExpiration = strtotime(storage.get(client.config.app_id .. '-' .. AUTH_TOKEN_EXPIRATION) or "")
   local currentUser = storage.get(client.config.app_id .. '-' .. AUTH_DATA_KEY)
+  local now = os.time()
 
   -- Fill current user only when it isn't expired yet.
   if (currentUser and now < tokenExpiration) then
@@ -38,8 +59,6 @@ function auth:setCurrentUser(data)
     storage.remove(self.client.config.app_id .. '-' .. AUTH_TOKEN_KEY)
     storage.remove(self.client.config.app_id .. '-' .. AUTH_DATA_KEY)
   else
-    print(self.client.config.app_id .. '-' .. AUTH_DATA_KEY)
-    print(json.encode(data))
     storage.set(self.client.config.app_id .. '-' .. AUTH_DATA_KEY, json.encode(data))
 
     self.currentUser = data
@@ -54,8 +73,8 @@ end
 function auth:register(data)
   local request = self.client:post("auth/email", data)
 
-  request:onSuccess(function()
-    self:_registerToken(data)
+  request:onSuccess(function(response)
+    self:_registerToken(response)
   end)
 
   return request
@@ -64,8 +83,8 @@ end
 function auth:login(data)
   local request = self.client:post("auth/email/login", data)
 
-  request:onSuccess(function(data)
-    self:_registerToken(data)
+  request:onSuccess(function(response)
+    self:_registerToken(response)
   end)
 
   return request
@@ -110,12 +129,8 @@ function auth:getToken()
 end
 
 function auth:_registerToken(data)
-  print("_registerToken")
-  print(json.encode(data))
   if data.token then
     -- register authentication token on localStorage
-    print(self.client.config.app_id .. '-' .. AUTH_TOKEN_KEY)
-    print(data.token.token)
     storage.set(self.client.config.app_id .. '-' .. AUTH_TOKEN_KEY, data.token.token);
     storage.set(self.client.config.app_id .. '-' .. AUTH_TOKEN_EXPIRATION, data.token.expire_at);
 

@@ -63,7 +63,7 @@ end
 
 function request:handler(event)
   self.isError = event.isError or (event.status >= 400)
-  self.response = json.decode(event.response) or {}
+  self.response = event.response and json.decode(event.response) or {}
 
   if self.isError then
     print("hook responed with error (".. event.status .. "): " .. (self.response.error or "unexpected"))

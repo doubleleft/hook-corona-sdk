@@ -95,7 +95,7 @@ function auth:update(data)
     error("not logged in.")
   end
 
-  local request = self.client:collection("auth"):update(self.currentUser._id, data)
+  local request = self.client:post("auth/update", data)
 
   request:onSuccess(function(data)
     self:setCurrentUser(data)

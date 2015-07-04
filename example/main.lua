@@ -63,7 +63,7 @@ end)
 -- -- Authentication examples
 -- --
 hook.auth:register({
-  email = "edreyer+8@doubleleft.com",
+  email = "edreyer@doubleleft.com",
   password = "123456"
 }):onSuccess(function(data)
   print(json.encode(data))

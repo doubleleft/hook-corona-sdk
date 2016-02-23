@@ -1,0 +1,13 @@
+# Whitelist of allowed host origins
+allowed_origins:
+  - '*'
+
+roles:
+  - trusted
+
+# collection permissions
+collections:
+
+  auths:
+    crud: owner # only the owner can read / update / delete
+    create: all # everyone can create

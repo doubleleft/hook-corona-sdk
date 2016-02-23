@@ -1,0 +1,3 @@
+[submodule "template-library-corona"]
+	path = template-library-corona
+	url = https://github.com/coronalabs/plugins-template-library-lua.git

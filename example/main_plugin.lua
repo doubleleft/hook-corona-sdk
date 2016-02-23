@@ -8,7 +8,8 @@ local json = require('json')
 --
 -- Initialize hook client with valid credentials
 --
-local hook = require('hook.client').setup({
+
+local hook = require('plugin.hook').setup({
   endpoint = "https://hook-coronasdk-example.herokuapp.com/",
   app_id = "2",
   key = "66a255a46e656a0c8566f27f881a890f"
@@ -78,3 +79,4 @@ hook.auth:login({
 end):onError(function(data)
   print("auth:login error: " .. data.error)
 end)
+
